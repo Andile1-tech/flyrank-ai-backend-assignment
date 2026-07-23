@@ -1,15 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from repository.postgres_repository import PostgresRepository
+from repository.sqlite_repository import SQLiteRepository
 
 app = FastAPI()
 
-repo = PostgresRepository()
+repo = SQLiteRepository()
 
 
-class Item(BaseModel):
-    name: str
+class Task(BaseModel):
+    title: str
+    done: bool = False
 
 
 @app.get("/")
@@ -22,17 +23,74 @@ def health():
     return {"status": "healthy"}
 
 
-@app.get("/items")
-def get_items():
+@app.get("/tasks")
+def get_tasks():
 
-    rows = repo.get_items()
+    rows = repo.get_tasks()
 
-    return [{"id": row[0], "name": row[1], "created_at": row[2]} for row in rows]
+    return [
+        {
+            "id": row["id"],
+            "title": row["title"],
+            "done": bool(row["done"]),
+        }
+        for row in rows
+    ]
 
 
-@app.post("/items")
-def add_item(item: Item):
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int):
 
-    repo.add_item(item.name)
+    task = repo.get_task_by_id(task_id)
 
-    return {"message": "Item added successfully"}
+    if task is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found",
+        )
+
+    return {
+        "id": task["id"],
+        "title": task["title"],
+        "done": bool(task["done"]),
+    }
+
+
+@app.post("/tasks", status_code=201)
+def add_task(task: Task):
+
+    repo.add_task(task.title)
+
+    return {"message": "Task added successfully"}
+
+
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int, task: Task):
+
+    updated = repo.update_task(
+        task_id,
+        task.title,
+        task.done,
+    )
+
+    if updated == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found",
+        )
+
+    return {"message": "Task updated successfully"}
+
+
+@app.delete("/tasks/{task_id}")
+def delete_task(task_id: int):
+
+    deleted = repo.delete_task(task_id)
+
+    if deleted == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found",
+        )
+
+    return {"message": "Task deleted successfully"}

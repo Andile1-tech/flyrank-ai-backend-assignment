@@ -1,11 +1,11 @@
-import os
-import psycopg
-from dotenv import load_dotenv
+import sqlite3
 
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_NAME = "tasks.db"
 
 
 def get_connection():
-    return psycopg.connect(DATABASE_URL)
+    conn = sqlite3.connect(DATABASE_NAME)
+
+    conn.row_factory = sqlite3.Row
+
+    return conn
