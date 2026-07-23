@@ -2,89 +2,187 @@
 
 ## Overview
 
-This project is a Dockerized FastAPI backend connected to a PostgreSQL database.
+This project is a simple Task Management API built using **FastAPI** and **SQLite**.
 
-It demonstrates a simple REST API capable of creating and retrieving items while following a clean repository structure.
+The purpose of this project is to demonstrate how a CRUD (Create, Read, Update, Delete) API can use a real SQLite database instead of an in-memory list. All task data is stored in a SQLite database, allowing data to persist even after the server is restarted.
 
-## Tech Stack
+---
 
-- Python 3.14
+## Technologies Used
+
+- Python
 - FastAPI
-- PostgreSQL 16
-- Docker
-- Docker Compose
+- SQLite
+- Pydantic
 - Uvicorn
 
-## Project Structure
+---
+
+## Why SQLite?
+
+SQLite was chosen because it is lightweight, easy to use, and requires no separate database server. It stores all data in a single database file (`tasks.db`), making it an excellent choice for small backend applications and learning SQL.
+
+---
+
+## Database Location
+
+The SQLite database file is stored in the project root as:
 
 ```
-.
-├── repository/
-├── sql/
-├── database.py
-├── Dockerfile
-├── docker-compose.yml
-├── main.py
-├── requirements.txt
-└── README.md
+tasks.db
 ```
 
-## Running the Project
+When the application starts, it automatically:
 
-Clone the repository:
+- Creates the database if it does not exist.
+- Creates the `tasks` table if it does not exist.
+- Inserts three example tasks only if the table is empty.
 
-```bash
-git clone https://github.com/Andile1-tech/flyrank-ai-backend-assignment.git
-```
-
-Navigate into the project:
-
-```bash
-cd flyrank-ai-backend-assignment
-```
-
-Start the application:
-
-```bash
-docker compose up --build
-```
-
-The API will be available at:
-
-```
-http://localhost:8000
-```
-
-Swagger documentation:
-
-```
-http://localhost:8000/docs
-```
+---
 
 ## API Endpoints
 
-### GET /items
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Returns a welcome message |
+| GET | `/health` | Checks if the API is running |
+| GET | `/tasks` | Returns all tasks |
+| GET | `/tasks/{task_id}` | Returns a single task |
+| POST | `/tasks` | Creates a new task |
+| PUT | `/tasks/{task_id}` | Updates an existing task |
+| DELETE | `/tasks/{task_id}` | Deletes a task |
 
-Returns all stored items.
+---
 
-### POST /items
+## How to Run the Project
 
-Creates a new item.
+### 1. Clone the repository
 
-Example request:
-
-```json
-{
-  "name": "Laptop"
-}
+```bash
+git clone https://github.com/Andile1-tech/flyrank-ai-backend-assignment
 ```
 
-## Database
+### 2. Open the project folder
 
-The application uses PostgreSQL running inside Docker.
+```bash
+cd https://github.com/Andile1-tech/flyrank-ai-backend-assignment
+```
 
-Tables are automatically created during initialization using the SQL script inside the `sql` directory.
+### 3. Install the dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Start the FastAPI server
+
+```bash
+uvicorn main:app --reload
+```
+
+### 5. Open Swagger UI
+
+```
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## Example SQL Queries
+
+List all tasks:
+
+```sql
+SELECT * FROM tasks;
+```
+
+Show completed tasks:
+
+```sql
+SELECT * FROM tasks WHERE done = 1;
+```
+
+Count all tasks:
+
+```sql
+SELECT COUNT(*) FROM tasks;
+```
+
+Update every task as completed:
+
+```sql
+UPDATE tasks SET done = 1;
+```
+
+Delete all completed tasks:
+
+```sql
+DELETE FROM tasks WHERE done = 1;
+```
+
+---
+
+## Database Screenshot
+
+![Database Screenshot](docs/database.png)
+
+The screenshot above shows the SQLite database (`tasks.db`) opened using **DB Browser for SQLite**.
+
+---
+
+## Project Structure
+
+```text
+project/
+│
+├── docs/
+│   └── database.png
+│
+├── repository/
+│   └── sqlite_repository.py
+│
+├── main.py
+├── database.py
+├── tasks.db
+├── README.md
+├── requirements.txt
+└── .gitignore
+```
+
+---
+
+## Features
+
+- SQLite database integration
+- Automatic database creation
+- Automatic table creation
+- Seed data inserted only once
+- Persistent storage
+- Full CRUD API
+- SQL queries for Create, Read, Update and Delete
+- Swagger API documentation
+
+---
+
+## Assignment Requirements Completed
+
+- ✅ SQLite database replaces the in-memory list
+- ✅ Data persists after restarting the server
+- ✅ Database created automatically
+- ✅ Tasks table created automatically
+- ✅ Three sample tasks inserted only on first run
+- ✅ CRUD operations use SQL queries
+- ✅ GET, POST, PUT and DELETE endpoints implemented
+- ✅ Invalid requests return appropriate HTTP status codes
+- ✅ SQL queries tested using DB Browser for SQLite
+- ✅ Project documented with README and database screenshot
+
+---
 
 ## Author
+
+**Atenkosi Andile Mnikina**
+
+Backend AI Engineering Assignment – FlyRank AI
 
 Andile M
